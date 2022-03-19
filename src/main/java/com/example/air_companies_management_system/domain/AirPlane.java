@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-public class Airplane {
+public class AirPlane {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

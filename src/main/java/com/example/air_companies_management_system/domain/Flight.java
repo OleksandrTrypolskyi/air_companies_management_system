@@ -23,7 +23,7 @@ public class Flight {
     private AirCompany airCompany;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "airplane_id")
-    private AirPlane airplane;
+    private Airplane airplane;
     private String departureCountry;
     private String destinationCountry;
     private Float distance;

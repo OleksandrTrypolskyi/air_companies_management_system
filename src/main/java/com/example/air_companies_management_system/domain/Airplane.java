@@ -1,5 +1,6 @@
 package com.example.air_companies_management_system.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,4 +26,19 @@ public class Airplane {
     private Float fuelCapacity;
     private String type;
     private LocalDateTime createdAt;
+
+    @Builder
+    public Airplane(Long id, String name, String factorySerialNumber, AirCompany airCompany,
+                    Integer numberOfFlights, Float flightDistance, Float fuelCapacity, String type,
+                    LocalDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.factorySerialNumber = factorySerialNumber;
+        this.airCompany = airCompany;
+        this.numberOfFlights = numberOfFlights;
+        this.flightDistance = flightDistance;
+        this.fuelCapacity = fuelCapacity;
+        this.type = type;
+        this.createdAt = createdAt;
+    }
 }

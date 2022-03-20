@@ -1,5 +1,6 @@
 package com.example.air_companies_management_system.service;
 
+import com.example.air_companies_management_system.domain.AirCompany;
 import com.example.air_companies_management_system.domain.Airplane;
 import com.example.air_companies_management_system.exception.AirCompanyNotFoundException;
 import com.example.air_companies_management_system.exception.AirplaneNotFoundException;
@@ -26,7 +27,26 @@ public class AirplaneServiceImpl implements AirplaneService {
     @Transactional
     @Override
     public Airplane changeAirCompany(Long airPlaneId, Long airCompanyId) {
-       return null;
+        final Optional<AirCompany> optionalAirCompany = airCompanyRepository.findById(airCompanyId);
+        if (optionalAirCompany.isEmpty()) {
+            log.error("AirCompany with id: " + airCompanyId + " does not exist in DB." +
+                    "AirplaneServiceImpl.changeAirCompany() failed");
+            throw new AirCompanyNotFoundException("Air company with id:" + airCompanyId + " does not exists.");
+        } else {
+            final Optional<Airplane> optionalAirPlane = airplaneRepository.findById(airPlaneId);
+            if (optionalAirPlane.isPresent()) {
+                log.info("Airplane with id: " + airPlaneId + " was retrieved from DB.");
+                final Airplane airplane = optionalAirPlane.get();
+                log.info("Airplane, id=" + airPlaneId + ". Change Air Company from id="
+                        + airplane.getAirCompany().getId() + " to id=" + airCompanyId);
+                airplane.setAirCompany(optionalAirCompany.get());
+                return airplaneRepository.save(airplane);
+            } else {
+                log.error("Airplane with id: " + airPlaneId + " does not exist in DB." +
+                        "AirplaneServiceImpl.changeAirCompany() failed");
+                throw new AirplaneNotFoundException("Airplane with id:" + airCompanyId + " does not exists.");
+            }
+        }
 
     }
 

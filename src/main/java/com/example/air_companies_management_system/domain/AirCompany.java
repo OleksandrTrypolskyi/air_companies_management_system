@@ -1,5 +1,6 @@
 package com.example.air_companies_management_system.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,4 +22,12 @@ public class AirCompany {
     private String name;
     private String companyType;
     private LocalDateTime foundedAt;
+
+    @Builder
+    public AirCompany(Long id, String name, String companyType, LocalDateTime foundedAt) {
+        this.id = id;
+        this.name = name;
+        this.companyType = companyType;
+        this.foundedAt = foundedAt;
+    }
 }

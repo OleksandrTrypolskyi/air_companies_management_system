@@ -6,9 +6,9 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface AirCompanyService {
-    Optional<Set<AirCompany>> findAll();
+    Set<AirCompany> findAll();
 
-    Optional<AirCompany> findById(Long id);
+    AirCompany findById(Long id);
 
     AirCompany saveOrUpdate(AirCompany airCompany);
 

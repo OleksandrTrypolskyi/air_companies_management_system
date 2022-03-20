@@ -27,7 +27,7 @@ public class Flight {
     private String departureCountry;
     private String destinationCountry;
     private Float distance;
-    private Duration flightTime;
+    private Duration estimatedFlightTime;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private LocalDateTime delayStartedAt;

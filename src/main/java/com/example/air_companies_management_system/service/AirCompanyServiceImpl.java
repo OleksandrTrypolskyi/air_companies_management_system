@@ -52,6 +52,7 @@ public class AirCompanyServiceImpl implements AirCompanyService {
                 .orElseThrow(getAirCompanyNotFoundExceptionSupplier(id));
     }
 
+    @Transactional
     @Override
     public AirCompany saveOrUpdate(AirCompany airCompany) {
         if (airCompanyRepository.existsById(airCompany.getId())) {
@@ -73,6 +74,7 @@ public class AirCompanyServiceImpl implements AirCompanyService {
         return airCompanyRepository.save(airCompanyFromDB);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         airCompanyRepository.delete(findById(id));
@@ -83,7 +85,7 @@ public class AirCompanyServiceImpl implements AirCompanyService {
     private Supplier<AirCompanyNotFoundException> getAirCompanyNotFoundExceptionSupplier(Long id) {
         return () -> {
             log.error("AirCompany with id: " + id + " does not exist in DB. AriCompanyServiceImpl.findById() failed.");
-            throw new AirCompanyNotFoundException("Air company with id:" + id + " do not exists.");
+            throw new AirCompanyNotFoundException("Air company with id:" + id + " does not exists.");
         };
     }
 }

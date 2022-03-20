@@ -25,10 +25,10 @@ public class AirCompanyController {
     }
 
     @GetMapping("/{id}")
-    public AirCompany getById(@PathVariable String id) {
+    public AirCompany getById(@PathVariable Long id) {
         log.info("GET request to AirCompanyController.getById() endpoint." +
                 " With parameter id=" + id);
-        return airCompanyService.findById(Long.parseLong(id));
+        return airCompanyService.findById(id);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -47,10 +47,10 @@ public class AirCompanyController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable String id) {
+    public void delete(@PathVariable Long id) {
         log.info("DELETE request to AirCompanyController.delete() endpoint." +
                 " With parameter id=" + id);
-        airCompanyService.deleteById(Long.parseLong(id));
+        airCompanyService.deleteById(id);
     }
 
 

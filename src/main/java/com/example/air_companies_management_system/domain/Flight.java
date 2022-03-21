@@ -1,8 +1,6 @@
 package com.example.air_companies_management_system.domain;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.Duration;
@@ -12,6 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
+@ToString(exclude = {"airplane"})
 public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,4 +31,23 @@ public class Flight {
     private LocalDateTime endedAt;
     private LocalDateTime delayStartedAt;
     private LocalDateTime createdAt;
+
+    @Builder
+    public Flight(Long id, FlightStatus flightStatus, AirCompany airCompany, Airplane airplane,
+                  String departureCountry, String destinationCountry, Float distance,
+                  Duration estimatedFlightTime, LocalDateTime startedAt, LocalDateTime endedAt,
+                  LocalDateTime delayStartedAt, LocalDateTime createdAt) {
+        this.id = id;
+        this.flightStatus = flightStatus;
+        this.airCompany = airCompany;
+        this.airplane = airplane;
+        this.departureCountry = departureCountry;
+        this.destinationCountry = destinationCountry;
+        this.distance = distance;
+        this.estimatedFlightTime = estimatedFlightTime;
+        this.startedAt = startedAt;
+        this.endedAt = endedAt;
+        this.delayStartedAt = delayStartedAt;
+        this.createdAt = createdAt;
+    }
 }

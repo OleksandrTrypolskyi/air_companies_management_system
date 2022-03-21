@@ -23,6 +23,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AirplaneServiceImplTest {
 
+    public static final long ID_2L = 2L;
     private AirplaneService airplaneService;
     @Mock
     private AirplaneRepository airplaneRepository;
@@ -36,7 +37,7 @@ class AirplaneServiceImplTest {
     void setUp() {
         airplaneService = new AirplaneServiceImpl(airplaneRepository, airCompanyRepository);
         airCompanyIdOne = AirCompany.builder().id(1L).build();
-        airCompanyIdTwo = AirCompany.builder().id(2L).build();
+        airCompanyIdTwo = AirCompany.builder().id(ID_2L).build();
         airplane = Airplane.builder().id(3L).airCompany(airCompanyIdOne).build();
     }
 
@@ -47,9 +48,9 @@ class AirplaneServiceImplTest {
         when(airplaneRepository.findById(anyLong())).thenReturn(Optional.of(airplane));
         when(airplaneRepository.save(any())).thenReturn(Airplane.builder().id(3L).airCompany(airCompanyIdTwo).build());
 
-        final Airplane resultAirplane = airplaneService.changeAirCompany(3L, 2L);
+        final Airplane resultAirplane = airplaneService.changeAirCompany(3L, ID_2L);
 
-        assertThat(resultAirplane.getAirCompany().getId()).isEqualTo(2L);
+        assertThat(resultAirplane.getAirCompany().getId()).isEqualTo(ID_2L);
 
         verify(airCompanyRepository, times(1)).findById(anyLong());
         verify(airplaneRepository, times(1)).findById(anyLong());
@@ -61,7 +62,7 @@ class AirplaneServiceImplTest {
         when(airCompanyRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(AirCompanyNotFoundException.class,
-                () -> airplaneService.changeAirCompany(3L, 2L));
+                () -> airplaneService.changeAirCompany(3L, ID_2L));
 
         verify(airCompanyRepository, times(1)).findById(anyLong());
         verifyNoInteractions(airplaneRepository);
@@ -73,11 +74,42 @@ class AirplaneServiceImplTest {
         when(airplaneRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(AirplaneNotFoundException.class,
-                () -> airplaneService.changeAirCompany(3L, 2L));
+                () -> airplaneService.changeAirCompany(3L, ID_2L));
 
         verify(airCompanyRepository, times(1)).findById(anyLong());
         verify(airplaneRepository, times(1)).findById(anyLong());
         verifyNoMoreInteractions(airplaneRepository);
     }
 
+    @Test
+    void addNewAndAssignAirCompany() {
+        when(airCompanyRepository.findById(anyLong())).thenReturn(Optional.of(airCompanyIdTwo));
+        when(airplaneRepository.save(any(Airplane.class))).thenReturn(airplane);
+
+        final Airplane resultAirplane = airplaneService.addNewAndAssignAirCompany(this.airplane, ID_2L);
+
+        assertThat(resultAirplane).isNotNull();
+        verify(airCompanyRepository, times(1)).findById(anyLong());
+        verify(airplaneRepository, times(1)).save(any(Airplane.class));
+
+    }
+
+    @Test
+    void addNewAndAssignAirCompanyThrowAirCompanyNotFoundExc() {
+        when(airCompanyRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(AirCompanyNotFoundException.class,
+                () -> airplaneService.addNewAndAssignAirCompany(this.airplane, ID_2L));
+        verifyNoMoreInteractions(airCompanyRepository);
+        verifyNoInteractions(airplaneRepository);
+    }
+
+    @Test
+    void addNew() {
+        when(airplaneRepository.save(any(Airplane.class))).thenReturn(airplane);
+        final Airplane resultAirplane = airplaneService.addNew(airplane);
+
+        assertThat(resultAirplane).isNotNull();
+        verify(airplaneRepository, times(1)).save(any(Airplane.class));
+    }
 }

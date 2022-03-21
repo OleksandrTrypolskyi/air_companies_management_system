@@ -10,9 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
+@Transactional
 @Service
 public class AirplaneServiceImpl implements AirplaneService {
 
@@ -24,14 +26,11 @@ public class AirplaneServiceImpl implements AirplaneService {
         this.airCompanyRepository = airCompanyRepository;
     }
 
-    @Transactional
     @Override
     public Airplane changeAirCompany(Long airPlaneId, Long airCompanyId) {
         final Optional<AirCompany> optionalAirCompany = airCompanyRepository.findById(airCompanyId);
         if (optionalAirCompany.isEmpty()) {
-            log.error("AirCompany with id: " + airCompanyId + " does not exist in DB." +
-                    "AirplaneServiceImpl.changeAirCompany() failed");
-            throw new AirCompanyNotFoundException("Air company with id:" + airCompanyId + " does not exists.");
+            return throwAirCompanyNotFoundException(airCompanyId);
         } else {
             final Optional<Airplane> optionalAirPlane = airplaneRepository.findById(airPlaneId);
             if (optionalAirPlane.isPresent()) {
@@ -50,13 +49,35 @@ public class AirplaneServiceImpl implements AirplaneService {
 
     }
 
+
     @Override
-    public AirplaneService addNewAndAssignAirCompany(Airplane airplane, Long AirCompanyId) {
-        return null;
+    public Airplane addNewAndAssignAirCompany(Airplane airplane, Long airCompanyId) {
+        final Optional<AirCompany> optionalAirCompany = airCompanyRepository.findById(airCompanyId);
+        if (optionalAirCompany.isEmpty()) {
+            return throwAirCompanyNotFoundException(airCompanyId);
+        } else {
+            airplane.setAirCompany(optionalAirCompany.get());
+            airplane.setCreatedAt(LocalDateTime.now());
+            final Airplane savedAirplane = airplaneRepository.save(airplane);
+            log.info("Airplane with id:" + savedAirplane.getId() + " saved and Air Company id:"
+                    + optionalAirCompany.get().getId() + " assigned to it." +
+                    " AirplaneServiceImpl.addNewAndAssignAirCompany() successful.");
+            return savedAirplane;
+        }
     }
 
     @Override
     public Airplane addNew(Airplane airPlane) {
-        return null;
+        airPlane.setCreatedAt(LocalDateTime.now());
+        final Airplane savedAirplane = airplaneRepository.save(airPlane);
+        log.info("Airplane with id:" + savedAirplane.getId() + " saved." +
+                " AirplaneServiceImpl.addNew() successful.");
+        return savedAirplane;
+    }
+
+    private Airplane throwAirCompanyNotFoundException(Long airCompanyId) {
+        log.error("AirCompany with id: " + airCompanyId + " does not exist in DB." +
+                "AirplaneServiceImpl.changeAirCompany() failed");
+        throw new AirCompanyNotFoundException("Air company with id:" + airCompanyId + " does not exists.");
     }
 }

@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Slf4j
+@Transactional
 @Service
 public class AirCompanyServiceImpl implements AirCompanyService {
     private final AirCompanyRepository airCompanyRepository;
@@ -52,7 +53,6 @@ public class AirCompanyServiceImpl implements AirCompanyService {
                 .orElseThrow(getAirCompanyNotFoundExceptionSupplier(id));
     }
 
-    @Transactional
     @Override
     public AirCompany saveOrUpdate(AirCompany airCompany) {
         if (airCompanyRepository.existsById(airCompany.getId())) {
@@ -74,7 +74,6 @@ public class AirCompanyServiceImpl implements AirCompanyService {
         return airCompanyRepository.save(airCompanyFromDB);
     }
 
-    @Transactional
     @Override
     public void deleteById(Long id) {
         airCompanyRepository.delete(findById(id));

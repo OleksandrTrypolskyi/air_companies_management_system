@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,7 +41,8 @@ class FlightServiceImplTest {
     void setUp() {
         flightService = new FlightServiceImpl(flightRepository, airCompanyRepository);
         britishAirLines = AirCompany.builder().name(BRITISH_AIR_LINES).build();
-        flight = Flight.builder().flightStatus(FlightStatus.COMPLETED).airCompany(britishAirLines).build();
+        flight = Flight.builder().flightStatus(FlightStatus.COMPLETED).airCompany(britishAirLines)
+                .startedAt(LocalDateTime.now().minusDays(2)).build();
     }
 
     @Test
@@ -50,6 +52,9 @@ class FlightServiceImplTest {
                 .thenReturn(Optional.of(Set.of(flight)));
         final Set<Flight> result = flightService
                 .findFlightsByAirCompanyNameAndByStatus(BRITISH_AIR_LINES, COMPLETED);
+        verify(airCompanyRepository, times(1)).existsAirCompanyByName(anyString());
+        verify(flightRepository, times(1))
+                .findAllByAirCompany_NameAndFlightStatus(anyString(), any());
         assertThat(result.iterator().hasNext()).isTrue();
         assertThat(result.iterator().next().getAirCompany().getName()).isEqualTo(BRITISH_AIR_LINES);
         assertThat(result.iterator().next().getFlightStatus().getStatus()).isEqualToIgnoringCase(COMPLETED);
@@ -73,6 +78,29 @@ class FlightServiceImplTest {
         assertThrows(FlightNotFoundException.class, () -> flightService
                 .findFlightsByAirCompanyNameAndByStatus(BRITISH_AIR_LINES, COMPLETED));
         verifyNoMoreInteractions(airCompanyRepository);
+        verifyNoMoreInteractions(flightRepository);
+    }
+
+
+    @Test
+    void findActiveFlightsStartedMoreThanDayAgo() {
+        when(flightRepository
+                    .findAllByFlightStatusAndStartedAtLessThanEqual(any(FlightStatus.class), any(LocalDateTime.class)))
+                .thenReturn(Optional.of(Set.of(flight)));
+        final Set<Flight> result = flightService.findActiveFlightsStartedMoreThanDayAgo();
+        verify(flightRepository, times(1))
+                .findAllByFlightStatusAndStartedAtLessThanEqual(any(FlightStatus.class), any(LocalDateTime.class));
+        assertThat(result.iterator().hasNext()).isTrue();
+        assertThat(result.iterator().next().getStartedAt().isBefore(LocalDateTime.now().minusHours(24)))
+                .isTrue();
+    }
+
+    @Test
+    void findActiveFlightsStartedMoreThanDayAgoThrowsFlightNotFoundExc() {
+        when(flightRepository
+                .findAllByFlightStatusAndStartedAtLessThanEqual(any(FlightStatus.class), any(LocalDateTime.class)))
+                .thenThrow(FlightNotFoundException.class);
+        assertThrows(FlightNotFoundException.class, () -> flightService.findActiveFlightsStartedMoreThanDayAgo());
         verifyNoMoreInteractions(flightRepository);
     }
 }

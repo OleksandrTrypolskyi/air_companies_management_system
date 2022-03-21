@@ -28,4 +28,10 @@ public class FlightController {
                 "With parameters airCompanyName=" + airCompanyName + " flightStatus=" + flightStatus);
         return flightService.findFlightsByAirCompanyNameAndByStatus(airCompanyName, flightStatus);
     }
+
+    @GetMapping("/findActiveFlightsStartedMoreThanDayAgo")
+    public Set<Flight> findActiveFlightsStartedMoreThanDayAgo() {
+        log.info("GET request to FlightController.findActiveFlightsStartedMoreThanDayAgo() endpoint.");
+        return flightService.findActiveFlightsStartedMoreThanDayAgo();
+    }
 }

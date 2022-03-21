@@ -9,20 +9,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.ArgumentsSource;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -51,9 +51,16 @@ class FlightRepositoryIntegrationTest {
         airCompanyRepository.save(franceAirLines);
 
         flights = new HashSet<>();
-        flights.add(Flight.builder().flightStatus(FlightStatus.ACTIVE).airCompany(britishAirLines).build());
-        flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED).airCompany(franceAirLines).build());
-        flights.add(Flight.builder().flightStatus(FlightStatus.DELAYED).airCompany(britishAirLines).build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.ACTIVE).airCompany(britishAirLines)
+                .startedAt(LocalDateTime.now().minusDays(2)).build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED).airCompany(franceAirLines)
+                .startedAt(LocalDateTime.now().minusHours(10)).build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.ACTIVE).airCompany(franceAirLines)
+                .startedAt(LocalDateTime.now().minusHours(10)).build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.DELAYED).airCompany(britishAirLines)
+                .startedAt(LocalDateTime.now().minusDays(3)).build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.ACTIVE).airCompany(britishAirLines)
+                .startedAt(LocalDateTime.now().minusDays(3)).build());
         flights.add(Flight.builder().flightStatus(FlightStatus.PENDING).airCompany(franceAirLines).build());
         flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED).airCompany(britishAirLines).build());
         flightRepository.saveAll(flights);
@@ -79,19 +86,25 @@ class FlightRepositoryIntegrationTest {
     void findAllByAirCompany_NameAndFlightStatus(String airCompanyName, FlightStatus flightStatus) {
         final Set<Flight> expectedResult = flights.stream()
                 .filter(flight -> flight.getAirCompany().getName().equals(airCompanyName)
-                        && flight.getFlightStatus().getStatus().equals(flightStatus.getStatus())).collect(Collectors.toSet());
+                        && flight.getFlightStatus().getStatus().equals(flightStatus.getStatus()))
+                .collect(Collectors.toSet());
 
         final Set<Flight> actualResult = flightRepository
                 .findAllByAirCompany_NameAndFlightStatus(airCompanyName, flightStatus)
                 .get();
-
-        System.out.println(expectedResult);
-        System.out.println(actualResult);
 
         assertThat(actualResult).isEqualTo(expectedResult);
     }
 
     @Test
     void findAllByFlightStatusAndStartedAtGreaterThanEqual() {
+        final Set<Flight> expectedResult = flights.stream()
+                .filter(flight -> flight.getFlightStatus().equals(FlightStatus.ACTIVE)
+                        && flight.getStartedAt().isBefore(LocalDateTime.now().minusHours(24)))
+                .collect(Collectors.toSet());
+        final Set<Flight> actualResult = flightRepository.findAllByFlightStatusAndStartedAtLessThanEqual(FlightStatus.ACTIVE,
+                LocalDateTime.now().minusHours(24)).get();
+
+        assertThat(actualResult).isEqualTo(expectedResult);
     }
 }

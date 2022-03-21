@@ -8,7 +8,9 @@ import com.example.air_companies_management_system.repository.AirCompanyReposito
 import com.example.air_companies_management_system.repository.FlightRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -24,6 +26,7 @@ public class FlightServiceImpl implements FlightService {
         this.airCompanyRepository = airCompanyRepository;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Set<Flight> findFlightsByAirCompanyNameAndByStatus(String airCompanyName, String flightStatus) {
         if (!airCompanyRepository.existsAirCompanyByName(airCompanyName)) {
@@ -51,9 +54,23 @@ public class FlightServiceImpl implements FlightService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Set<Flight> findActiveFlightsStartedMoreThanDayAgo() {
-        return null;
+        final Optional<Set<Flight>> optional = flightRepository
+                .findAllByFlightStatusAndStartedAtLessThanEqual(FlightStatus.ACTIVE,
+                        LocalDateTime.now().minusHours(24));
+
+        if(optional.isPresent()) {
+            log.info("Flights with Active status and started more than 24 hours ago were retrieved from DB. " +
+                    "FlightServiceImpl.findActiveFlightsStartedMoreThanDayAgo() successful.");
+            return optional.get();
+        } else {
+            log.error("Flight with Active status and started more than 24 hours ago does not exist in DB. " +
+                    "FlightServiceImpl.findActiveFlightsStartedMoreThanDayAgo() failed.");
+            throw new FlightNotFoundException(
+                    "Flight with Active status and started more than 24 hours ago does not exist in DB.");
+        }
     }
 
     @Override

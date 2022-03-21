@@ -10,5 +10,5 @@ import java.util.Set;
 
 public interface FlightRepository extends CrudRepository<Flight, Long> {
     Optional<Set<Flight>> findAllByAirCompany_NameAndFlightStatus(String airCompanyName, FlightStatus flightStatus);
-    Optional<Set<Flight>> findAllByFlightStatusAndStartedAtGreaterThanEqual(String flightStatus, LocalDateTime dateTime);
+    Optional<Set<Flight>> findAllByFlightStatusAndStartedAtLessThanEqual(FlightStatus flightStatus, LocalDateTime dateTime);
 }

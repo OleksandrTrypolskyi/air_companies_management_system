@@ -3,10 +3,10 @@ package com.example.air_companies_management_system.controller;
 import com.example.air_companies_management_system.domain.Airplane;
 import com.example.air_companies_management_system.service.AirplaneService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -25,5 +25,23 @@ public class AirplaneController {
         log.info("PATCH request to AirplaneController.changeAirCompany() endpoint. " +
                 "With parameters airPlaneId=" + airPlaneId + " airCompanyId=" + airCompanyId);
         return airplaneService.changeAirCompany(airPlaneId, airCompanyId);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping
+    public Airplane addNew(@RequestBody Airplane airplane) {
+        Optional<Long> airCompanyId = Optional.empty();
+
+        if(airplane.getAirCompany() != null) {
+            airCompanyId = Optional.of(airplane.getAirCompany().getId());
+        }
+        log.info("POST request to AirplaneController.addNew() endpoint. " +
+                "With parameters airPlane" + airplane + " airCompanyId=" + airCompanyId.orElse(null));
+
+        if(airCompanyId.isPresent()) {
+            return airplaneService.addNewAndAssignAirCompany(airplane, airCompanyId.get());
+        } else {
+            return airplaneService.addNew(airplane);
+        }
     }
 }

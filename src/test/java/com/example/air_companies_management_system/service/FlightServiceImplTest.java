@@ -103,4 +103,13 @@ class FlightServiceImplTest {
         assertThrows(FlightNotFoundException.class, () -> flightService.findActiveFlightsStartedMoreThanDayAgo());
         verifyNoMoreInteractions(flightRepository);
     }
+
+    @Test
+    void addNew() {
+        flight.setFlightStatus(FlightStatus.PENDING);
+        when(flightRepository.save(any(Flight.class))).thenReturn(flight);
+        final Flight savedFlight = flightService.addNew(flight);
+        assertThat(savedFlight.getFlightStatus()).isEqualTo(FlightStatus.PENDING);
+        verify(flightRepository, times(1)).save(any(Flight.class));
+    }
 }

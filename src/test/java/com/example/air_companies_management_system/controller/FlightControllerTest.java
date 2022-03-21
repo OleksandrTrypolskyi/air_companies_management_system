@@ -6,6 +6,10 @@ import com.example.air_companies_management_system.domain.FlightStatus;
 import com.example.air_companies_management_system.exception.AirCompanyNotFoundException;
 import com.example.air_companies_management_system.exception.FlightNotFoundException;
 import com.example.air_companies_management_system.service.FlightService;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,8 +46,12 @@ class FlightControllerTest {
     private Flight flight;
     private AirCompany britishAirLines;
 
+    private ObjectMapper objectMapper;
+
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
+        objectMapper.findAndRegisterModules();
         britishAirLines = AirCompany.builder().name(BRITISH_AIR_LINES).build();
         flight = Flight.builder().flightStatus(FlightStatus.COMPLETED).airCompany(britishAirLines)
                 .startedAt(LocalDateTime.now().minusDays(2)).build();
@@ -136,5 +145,19 @@ class FlightControllerTest {
         assertThat(mvcResult.getResolvedException()).isInstanceOf(FlightNotFoundException.class);
 
         verify(flightService, times(1)).findActiveFlightsStartedMoreThanDayAgo();
+    }
+
+    @Test
+    void addNew() throws Exception {
+        flight.setFlightStatus(FlightStatus.PENDING);
+        when(flightService.addNew(any(Flight.class))).thenReturn(flight);
+        mockMvc.perform(post(API_V_1_FLIGHTS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(flight)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flightStatus", is("PENDING")));
+
+        verify(flightService, times(1)).addNew(any(Flight.class));
     }
 }

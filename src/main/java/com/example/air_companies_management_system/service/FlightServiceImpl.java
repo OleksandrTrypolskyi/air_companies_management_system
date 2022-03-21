@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
+@Transactional
 @Service
 public class FlightServiceImpl implements FlightService {
 
@@ -75,7 +76,13 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public Flight addNew(Flight flight) {
-        return null;
+        flight.setCreatedAt(LocalDateTime.now());
+        flight.setFlightStatus(FlightStatus.PENDING);
+        final Flight savedFlight = flightRepository.save(flight);
+        log.info("Flight with id: " + savedFlight.getId() + " and status: " + savedFlight.getFlightStatus().getStatus() +
+                " was saved to DB. " +
+                "FlightServiceImpl.addNew() successful.");
+        return savedFlight;
     }
 
     @Override

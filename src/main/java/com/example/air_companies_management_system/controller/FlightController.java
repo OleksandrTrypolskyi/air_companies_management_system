@@ -18,10 +18,9 @@ public class FlightController {
         this.flightService = flightService;
     }
 
-    @GetMapping
+    @GetMapping("/getFlights")
     public Set<Flight> getFlightsByCompanyNameAndStatus(@RequestParam String airCompanyName,
-                                                        @RequestParam String flightStatus
-    ) {
+                                                        @RequestParam String flightStatus) {
         log.info("GET request to FlightController.getFlightsByCompanyNameAndStatus() endpoint. " +
                 "With parameters airCompanyName=" + airCompanyName + " flightStatus=" + flightStatus);
         return flightService.findFlightsByAirCompanyNameAndByStatus(airCompanyName, flightStatus);
@@ -38,5 +37,13 @@ public class FlightController {
     public Flight addNew(@RequestBody Flight flight) {
         log.info("POST request to FlightController.addNew() endpoint.");
         return flightService.addNew(flight);
+    }
+
+    @GetMapping("/changeFlightStatus")
+    public Flight changeFlightStatus(@RequestParam Long flightId,
+                                     @RequestParam String flightStatus) {
+        log.info("GET request to FlightController.changeFlightStatus() endpoint. " +
+                "With parameters flightId=" + flightId + " flightStatus=" + flightStatus);
+        return flightService.changeFlightStatus(flightId, flightStatus);
     }
 }

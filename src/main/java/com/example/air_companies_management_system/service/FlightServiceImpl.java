@@ -4,6 +4,7 @@ import com.example.air_companies_management_system.domain.Flight;
 import com.example.air_companies_management_system.domain.FlightStatus;
 import com.example.air_companies_management_system.exception.AirCompanyNotFoundException;
 import com.example.air_companies_management_system.exception.FlightNotFoundException;
+import com.example.air_companies_management_system.exception.FlightStatusNotFoundException;
 import com.example.air_companies_management_system.repository.AirCompanyRepository;
 import com.example.air_companies_management_system.repository.FlightRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
@@ -79,20 +81,58 @@ public class FlightServiceImpl implements FlightService {
         flight.setCreatedAt(LocalDateTime.now());
         flight.setFlightStatus(FlightStatus.PENDING);
         final Flight savedFlight = flightRepository.save(flight);
-        log.info("Flight with id: " + savedFlight.getId() + " and status: " + savedFlight.getFlightStatus().getStatus() +
+        log.info("Flight with id: " + savedFlight.getId() + " and status: "
+                + savedFlight.getFlightStatus().getStatus() +
                 " was saved to DB. " +
                 "FlightServiceImpl.addNew() successful.");
         return savedFlight;
     }
 
     @Override
-    public Flight changeFlightStatus(String status) {
-        return null;
+    public Flight changeFlightStatus(Long flightId, String status) {
+        Flight flight = getFlight(flightId, flightRepository.findById(flightId));
+        FlightStatus flightStatus = getFlightStatus(status);
+
+        if(flightStatus.equals(FlightStatus.DELAYED)) flight.setDelayStartedAt(LocalDateTime.now());
+        if(flightStatus.equals(FlightStatus.ACTIVE)) flight.setStartedAt(LocalDateTime.now());
+        if(flightStatus.equals(FlightStatus.COMPLETED)) flight.setEndedAt(LocalDateTime.now());
+
+        flight.setFlightStatus(flightStatus);
+        final Flight savedFlight = flightRepository.save(flight);
+
+        log.info("Flight with id: " + savedFlight.getId() + " and status: "
+                + savedFlight.getFlightStatus().getStatus() +
+                " was updated and saved to DB with new status. " +
+                "FlightServiceImpl.changeFlightStatus() successful.");
+
+        return savedFlight;
     }
 
     @Override
     public Set<Flight> findCompletedFlightsWithDelay() {
         return null;
+    }
+
+    private Flight getFlight(Long flightId, Optional<Flight> optionalFlight) {
+        if(optionalFlight.isPresent()) {
+            log.info("Flight with id=" + flightId + " was retrieved from DB.");
+            return optionalFlight.get();
+        } else {
+            log.error("Flight with id=" + flightId + " does not exist in DB. " +
+                    "FlightServiceImpl.changeFlightStatus()  failed.");
+            throw new FlightNotFoundException("Flight with id=" + flightId + " does not exist in DB.");
+        }
+    }
+
+    private FlightStatus getFlightStatus(String status) {
+        final boolean validStatus = Arrays.stream(FlightStatus.values())
+                .anyMatch(fS -> fS.getStatus().equalsIgnoreCase(status));
+        if(validStatus) {
+            return convertStringToFlightStatus(status);
+        } else {
+            throw new FlightStatusNotFoundException("Flight status " + status +
+                    " is not Valid. Please use: 'ACTIVE', 'COMPLETED', 'DELAYED', 'PENDING'");
+        }
     }
 
     private FlightStatus convertStringToFlightStatus(String flightStatus) {

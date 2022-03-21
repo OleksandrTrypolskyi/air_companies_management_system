@@ -9,6 +9,6 @@ public interface FlightService {
     Set<Flight> findFlightsByAirCompanyNameAndByStatus(String airCompanyName, String flightStatus);
     Set<Flight> findActiveFlightsStartedMoreThanDayAgo();
     Flight addNew(Flight flight);
-    Flight changeFlightStatus(String status);
+    Flight changeFlightStatus(Long flightId, String status);
     Set<Flight> findCompletedFlightsWithDelay();
 }

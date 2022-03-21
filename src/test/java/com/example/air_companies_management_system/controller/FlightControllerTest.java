@@ -5,11 +5,9 @@ import com.example.air_companies_management_system.domain.Flight;
 import com.example.air_companies_management_system.domain.FlightStatus;
 import com.example.air_companies_management_system.exception.AirCompanyNotFoundException;
 import com.example.air_companies_management_system.exception.FlightNotFoundException;
+import com.example.air_companies_management_system.exception.FlightStatusNotFoundException;
 import com.example.air_companies_management_system.service.FlightService;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +36,8 @@ class FlightControllerTest {
     public static final String COMPLETED = "COMPLETED";
     public static final String API_V_1_FLIGHTS = "/api/v1/flights";
     public static final String FIND_ACTIVE_FLIGHTS_STARTED_MORE_THAN_DAY_AGO = "/findActiveFlightsStartedMoreThanDayAgo";
+    public static final String GET_FLIGHTS = "/getFlights";
+    public static final String CHANGE_FLIGHT_STATUS = "/changeFlightStatus";
     private FlightController flightController;
     @Mock
     private FlightService flightService;
@@ -67,7 +67,7 @@ class FlightControllerTest {
         when(flightService.findFlightsByAirCompanyNameAndByStatus(anyString(), anyString()))
                 .thenReturn(Set.of(flight));
 
-        mockMvc.perform(get(API_V_1_FLIGHTS)
+        mockMvc.perform(get(API_V_1_FLIGHTS + GET_FLIGHTS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("airCompanyName", BRITISH_AIR_LINES)
                         .param("flightStatus", COMPLETED))
@@ -86,7 +86,7 @@ class FlightControllerTest {
         when(flightService.findFlightsByAirCompanyNameAndByStatus(anyString(), anyString()))
                 .thenThrow(AirCompanyNotFoundException.class);
 
-        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS)
+        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + GET_FLIGHTS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("airCompanyName", BRITISH_AIR_LINES)
                         .param("flightStatus", COMPLETED))
@@ -104,7 +104,7 @@ class FlightControllerTest {
         when(flightService.findFlightsByAirCompanyNameAndByStatus(anyString(), anyString()))
                 .thenThrow(FlightNotFoundException.class);
 
-        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS)
+        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + GET_FLIGHTS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("airCompanyName", BRITISH_AIR_LINES)
                         .param("flightStatus", COMPLETED))
@@ -137,7 +137,8 @@ class FlightControllerTest {
         when(flightService.findActiveFlightsStartedMoreThanDayAgo())
                 .thenThrow(FlightNotFoundException.class);
 
-        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + FIND_ACTIVE_FLIGHTS_STARTED_MORE_THAN_DAY_AGO)
+        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS
+                        + FIND_ACTIVE_FLIGHTS_STARTED_MORE_THAN_DAY_AGO)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
@@ -159,5 +160,55 @@ class FlightControllerTest {
                 .andExpect(jsonPath("$.flightStatus", is("PENDING")));
 
         verify(flightService, times(1)).addNew(any(Flight.class));
+    }
+
+    @Test
+    void changeFlightStatus() throws Exception {
+        when(flightService.changeFlightStatus(anyLong(), anyString())).thenReturn(flight);
+        mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("flightId", "1")
+                        .param("flightStatus", "Completed"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.flightStatus", is("COMPLETED")));
+        verify(flightService, times(1)).changeFlightStatus(anyLong(), anyString());
+    }
+
+    @Test
+    void changeFlightStatusThrowsNumberFormatExc() throws Exception {
+        mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("flightId", "foo")
+                        .param("flightStatus", "Completed"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(flightService);
+    }
+
+    @Test
+    void changeFlightStatusThrowsFlightNotFoundExc() throws Exception {
+        when(flightService.changeFlightStatus(anyLong(), anyString())).thenThrow(FlightNotFoundException.class);
+        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("flightId", "1")
+                        .param("flightStatus", "Completed"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        assertThat(mvcResult.getResolvedException()).isInstanceOf(FlightNotFoundException.class);
+        verifyNoMoreInteractions(flightService);
+    }
+
+    @Test
+    void changeFlightStatusThrowsFlightStatusNotFoundExc() throws Exception {
+        when(flightService.changeFlightStatus(anyLong(), anyString()))
+                .thenThrow(FlightStatusNotFoundException.class);
+        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("flightId", "1")
+                        .param("flightStatus", "Completed"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        assertThat(mvcResult.getResolvedException()).isInstanceOf(FlightStatusNotFoundException.class);
+        verifyNoMoreInteractions(flightService);
     }
 }

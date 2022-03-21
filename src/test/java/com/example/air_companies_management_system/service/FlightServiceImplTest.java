@@ -5,6 +5,7 @@ import com.example.air_companies_management_system.domain.Flight;
 import com.example.air_companies_management_system.domain.FlightStatus;
 import com.example.air_companies_management_system.exception.AirCompanyNotFoundException;
 import com.example.air_companies_management_system.exception.FlightNotFoundException;
+import com.example.air_companies_management_system.exception.FlightStatusNotFoundException;
 import com.example.air_companies_management_system.repository.AirCompanyRepository;
 import com.example.air_companies_management_system.repository.FlightRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,5 +112,30 @@ class FlightServiceImplTest {
         final Flight savedFlight = flightService.addNew(flight);
         assertThat(savedFlight.getFlightStatus()).isEqualTo(FlightStatus.PENDING);
         verify(flightRepository, times(1)).save(any(Flight.class));
+    }
+
+    @Test
+    void changeFlightStatus() {
+        Flight flight = Flight.builder().id(3L).flightStatus(FlightStatus.PENDING).build();
+        when(flightRepository.findById(anyLong())).thenReturn(Optional.of(flight));
+        flight.setFlightStatus(FlightStatus.COMPLETED);
+        when(flightRepository.save(any(Flight.class))).thenReturn(flight);
+        final Flight resultFlight = flightService.changeFlightStatus(3L, COMPLETED);
+        assertThat(resultFlight.getFlightStatus().getStatus()).isEqualToIgnoringCase(COMPLETED);
+        assertThat(resultFlight.getEndedAt()).isNotNull();
+    }
+
+    @Test
+    void changeFlightStatusThrowsFlightNotFoundExc() {
+        when(flightRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(FlightNotFoundException.class, () -> flightService.changeFlightStatus(3L, COMPLETED));
+        verifyNoMoreInteractions(flightRepository);
+    }
+
+    @Test
+    void changeFlightStatusThrowsFlightStatusNotFoundExc() {
+        when(flightRepository.findById(anyLong())).thenReturn(Optional.of(flight));
+        assertThrows(FlightStatusNotFoundException.class, () -> flightService.changeFlightStatus(3L, "foo"));
+        verifyNoMoreInteractions(flightRepository);
     }
 }

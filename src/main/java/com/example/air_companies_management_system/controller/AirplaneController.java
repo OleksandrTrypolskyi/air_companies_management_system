@@ -20,11 +20,11 @@ public class AirplaneController {
     }
 
     @PatchMapping
-    public Airplane changeAirCompany(@RequestParam Long airPlaneId,
+    public Airplane changeAirCompany(@RequestParam Long airplaneId,
                                      @RequestParam Long airCompanyId) {
         log.info("PATCH request to AirplaneController.changeAirCompany() endpoint. " +
-                "With parameters airPlaneId=" + airPlaneId + " airCompanyId=" + airCompanyId);
-        return airplaneService.changeAirCompany(airPlaneId, airCompanyId);
+                "With parameters airPlaneId=" + airplaneId + " airCompanyId=" + airCompanyId);
+        return airplaneService.changeAirCompany(airplaneId, airCompanyId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)

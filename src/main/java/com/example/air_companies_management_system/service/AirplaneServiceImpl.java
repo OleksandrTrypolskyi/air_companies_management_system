@@ -36,8 +36,7 @@ public class AirplaneServiceImpl implements AirplaneService {
             if (optionalAirPlane.isPresent()) {
                 log.info("Airplane with id: " + airPlaneId + " was retrieved from DB.");
                 final Airplane airplane = optionalAirPlane.get();
-                log.info("Airplane, id=" + airPlaneId + ". Change Air Company from id="
-                        + airplane.getAirCompany().getId() + " to id=" + airCompanyId);
+                log.info("Airplane, id=" + airPlaneId + ". Set Air Company id=" + airCompanyId);
                 airplane.setAirCompany(optionalAirCompany.get());
                 return airplaneRepository.save(airplane);
             } else {

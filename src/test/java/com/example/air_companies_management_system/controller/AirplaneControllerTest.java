@@ -30,6 +30,8 @@ class AirplaneControllerTest {
 
     public static final String API_V_1_AIRPLANES = "/api/v1/airplanes";
     public static final String SERIAL_NUMBER = "Serial number";
+    public static final String AIRPLANE_ID = "airplaneId";
+    public static final String AIR_COMPANY_ID = "airCompanyId";
     private AirplaneController airplaneController;
     @Mock
     private AirplaneService airplaneService;
@@ -59,8 +61,8 @@ class AirplaneControllerTest {
 
         mockMvc.perform(patch(API_V_1_AIRPLANES)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("airPlaneId", "3")
-                        .param("airCompanyId", "2"))
+                        .param(AIRPLANE_ID, "3")
+                        .param(AIR_COMPANY_ID, "2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -74,8 +76,8 @@ class AirplaneControllerTest {
 
         mockMvc.perform(patch(API_V_1_AIRPLANES)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("airPlaneId", "3")
-                        .param("airCompanyId", "2"))
+                        .param(AIRPLANE_ID, "3")
+                        .param(AIR_COMPANY_ID, "2"))
                 .andExpect(status().isBadRequest());
 
         verify(airplaneService).changeAirCompany(anyLong(), anyLong());
@@ -88,8 +90,8 @@ class AirplaneControllerTest {
 
         mockMvc.perform(patch(API_V_1_AIRPLANES)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .param("airPlaneId", "3")
-                        .param("airCompanyId", "2"))
+                        .param(AIRPLANE_ID, "3")
+                        .param(AIR_COMPANY_ID, "2"))
                 .andExpect(status().isBadRequest());
 
         verify(airplaneService).changeAirCompany(anyLong(), anyLong());
@@ -100,7 +102,7 @@ class AirplaneControllerTest {
         mockMvc.perform(patch(API_V_1_AIRPLANES)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("airPlaneId", "jdk")
-                        .param("airCompanyId", "jre"))
+                        .param(AIR_COMPANY_ID, "jre"))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(airplaneService);

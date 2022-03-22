@@ -39,7 +39,7 @@ public class FlightController {
         return flightService.addNew(flight);
     }
 
-    @GetMapping("/changeFlightStatus")
+    @PutMapping("/changeFlightStatus")
     public Flight changeFlightStatus(@RequestParam Long flightId,
                                      @RequestParam String flightStatus) {
         log.info("GET request to FlightController.changeFlightStatus() endpoint. " +

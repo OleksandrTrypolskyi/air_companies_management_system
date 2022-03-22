@@ -25,8 +25,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -165,7 +164,7 @@ class FlightControllerTest {
     @Test
     void changeFlightStatus() throws Exception {
         when(flightService.changeFlightStatus(anyLong(), anyString())).thenReturn(flight);
-        mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+        mockMvc.perform(put(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("flightId", "1")
                         .param("flightStatus", "Completed"))
@@ -177,7 +176,7 @@ class FlightControllerTest {
 
     @Test
     void changeFlightStatusThrowsNumberFormatExc() throws Exception {
-        mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+        mockMvc.perform(put(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("flightId", "foo")
                         .param("flightStatus", "Completed"))
@@ -188,7 +187,7 @@ class FlightControllerTest {
     @Test
     void changeFlightStatusThrowsFlightNotFoundExc() throws Exception {
         when(flightService.changeFlightStatus(anyLong(), anyString())).thenThrow(FlightNotFoundException.class);
-        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+        final MvcResult mvcResult = mockMvc.perform(put(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("flightId", "1")
                         .param("flightStatus", "Completed"))
@@ -202,7 +201,7 @@ class FlightControllerTest {
     void changeFlightStatusThrowsFlightStatusNotFoundExc() throws Exception {
         when(flightService.changeFlightStatus(anyLong(), anyString()))
                 .thenThrow(FlightStatusNotFoundException.class);
-        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
+        final MvcResult mvcResult = mockMvc.perform(put(API_V_1_FLIGHTS + CHANGE_FLIGHT_STATUS)
                         .contentType(MediaType.APPLICATION_JSON)
                         .param("flightId", "1")
                         .param("flightStatus", "Completed"))

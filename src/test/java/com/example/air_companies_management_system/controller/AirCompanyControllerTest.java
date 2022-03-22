@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -153,6 +155,25 @@ class AirCompanyControllerTest {
                 .andExpect(jsonPath("$.id", is(ID_1_INT)))
                 .andExpect(jsonPath("$.name", is(FRANCE_AIR_LINES)))
                 .andExpect(jsonPath("$.companyType", is(BIG_COMPANY)));
+        verify(airCompanyService, times(1))
+                .saveOrUpdate(any(AirCompany.class));
+    }
+
+    @Test
+    void updateThrowsAirCompanyNotFoundExc() throws Exception {
+        when(airCompanyService.saveOrUpdate(any(AirCompany.class)))
+                .thenThrow(AirCompanyNotFoundException.class);
+        final AirCompany airCompanyForUpdate = AirCompany
+                .builder()
+                .id(435345L)
+                .build();
+        final MvcResult mvcResult = mockMvc.perform(put(API_V_1_AIR_COMPANIES)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(airCompanyForUpdate)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        assertThat(mvcResult.getResolvedException()).isInstanceOf(AirCompanyNotFoundException.class);
         verify(airCompanyService, times(1))
                 .saveOrUpdate(any(AirCompany.class));
     }

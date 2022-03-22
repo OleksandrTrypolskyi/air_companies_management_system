@@ -55,14 +55,21 @@ public class AirCompanyServiceImpl implements AirCompanyService {
 
     @Override
     public AirCompany saveOrUpdate(AirCompany airCompany) {
-        if (airCompanyRepository.existsById(airCompany.getId())) {
-            log.info("Retrieved from DB AirCompany with Id= " + airCompany.getId() +
-                    " AriCompanyServiceImpl.saveOrUpdate() will update AirCompany.");
-            return update(airCompany);
-        } else {
-            log.info("AirCompany with Id= " + airCompany.getId() + " does not exist id DB." +
+        if(airCompany.getId() == null) {
+            final AirCompany savedAirCompany = airCompanyRepository.save(airCompany);
+            log.info("AirCompany with Id= " + savedAirCompany.getId() + " does not exist id DB." +
                     " AriCompanyServiceImpl.saveOrUpdate() will save new AirCompany.");
-            return airCompanyRepository.save(airCompany);
+            return savedAirCompany;
+        } else {
+            if(airCompanyRepository.existsById(airCompany.getId())) {
+                log.info("Retrieved from DB AirCompany with Id= " + airCompany.getId() +
+                        " AriCompanyServiceImpl.saveOrUpdate() will update AirCompany.");
+                return update(airCompany);
+            } else {
+                log.error("AirCompany with id: " + airCompany.getId() + " does not exist in DB. " +
+                        "AirCompanyServiceImpl.findById() failed.");
+                throw new AirCompanyNotFoundException("Air company with id:" + airCompany.getId() + " does not exists.");
+            }
         }
     }
 
@@ -83,7 +90,7 @@ public class AirCompanyServiceImpl implements AirCompanyService {
 
     private Supplier<AirCompanyNotFoundException> getAirCompanyNotFoundExceptionSupplier(Long id) {
         return () -> {
-            log.error("AirCompany with id: " + id + " does not exist in DB. AriCompanyServiceImpl.findById() failed.");
+            log.error("AirCompany with id: " + id + " does not exist in DB. AirCompanyServiceImpl.findById() failed.");
             throw new AirCompanyNotFoundException("Air company with id:" + id + " does not exists.");
         };
     }

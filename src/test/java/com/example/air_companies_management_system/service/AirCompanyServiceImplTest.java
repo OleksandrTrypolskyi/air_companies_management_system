@@ -81,14 +81,12 @@ class AirCompanyServiceImplTest {
 
     @Test
     void saveOrUpdateSuccessfullySave() {
-        when(airCompanyRepository.existsById(anyLong())).thenReturn(false);
         when(airCompanyRepository.save(any(AirCompany.class))).thenReturn(airCompany);
         final AirCompany resultAirCompany = airCompanyService
-                .saveOrUpdate(AirCompany.builder().id(ID_1L).build());
+                .saveOrUpdate(AirCompany.builder().build());
         assertThat(resultAirCompany).isNotNull();
-        assertThat(resultAirCompany.getId()).isEqualTo(1L);
+        assertThat(resultAirCompany.getId()).isNotNull();
         assertThat(resultAirCompany.getName()).isEqualTo(FRANCE_AIR_LINES);
-        verify(airCompanyRepository, times(1)).existsById(anyLong());
         verify(airCompanyRepository, times(1)).save(any(AirCompany.class));
     }
 

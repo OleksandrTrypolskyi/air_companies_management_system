@@ -1,0 +1,366 @@
+{
+	"info": {
+		"_postman_id": "1b9f4c8a-1ffe-4115-9915-8d3c9ce8ea8a",
+		"name": "air_company_management_system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "AirCompany endpoints",
+			"item": [
+				{
+					"name": "AirCompanyController.findAll()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/airCompanies",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airCompanies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AirCompanyController.getById()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/airCompanies/2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airCompanies",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AirCompanyController.save()",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Poland Air Company\",\n    \"companyType\": \"Poland company\",\n    \"foundedAt\": \"2022-01-22T11:27:35\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/airCompanies",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airCompanies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AirCompanyController.update()",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 4,\n    \"name\": \"Poland Air Company with new name\",\n    \"companyType\": \"Poland company\",\n    \"foundedAt\": \"2022-01-22T11:27:35\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/airCompanies",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airCompanies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AirCompanyController.delete()",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/airCompanies/4",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airCompanies",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Airplane endpoints",
+			"item": [
+				{
+					"name": "AirPlaneController.changeAirCompany()",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/airplanes?airplaneId=1&airCompanyId=2",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airplanes"
+							],
+							"query": [
+								{
+									"key": "airplaneId",
+									"value": "1"
+								},
+								{
+									"key": "airCompanyId",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AiplaneController.addnew() with assigning Air Company",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Boing 800\",\n    \"factorySerialNumber\": \"901\",\n    \"airCompany\": {\n        \"id\": 2,\n        \"name\": \"France Air Company\",\n        \"companyType\": \"Small company\",\n        \"foundedAt\": \"2022-03-22T11:27:35\"\n    },\n    \"numberOfFlights\": 7,\n    \"flightDistance\": 150.0,\n    \"fuelCapacity\": 15.0,\n    \"type\": \"Passenger\",\n    \"createdAt\": \"2022-02-22T11:27:35\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/airplanes",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airplanes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AirplaneController.addNew() without assigning Air Company",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Boing 850\",\n    \"factorySerialNumber\": \"101\",\n    \"numberOfFlights\": 9,\n    \"flightDistance\": 170.0,\n    \"fuelCapacity\": 17.0,\n    \"type\": \"Transport\",\n    \"createdAt\": \"2022-01-22T13:02:33.551374\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/airplanes",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"airplanes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Flight endpoints",
+			"item": [
+				{
+					"name": "FlightController.getFlightsByCompanyNameAndStatus()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/flights/getFlights?airCompanyName=British Air Company&flightStatus=COMPLETED",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"flights",
+								"getFlights"
+							],
+							"query": [
+								{
+									"key": "airCompanyName",
+									"value": "British Air Company"
+								},
+								{
+									"key": "flightStatus",
+									"value": "COMPLETED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FlightController.findActiveFlightsStartedMoreThanDayAgo()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/flights/findActiveFlightsStartedMoreThanDayAgo",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"flights",
+								"findActiveFlightsStartedMoreThanDayAgo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FLightController.addNew()",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"departureCountry\": \"Germany\",\n    \"destinationCountry\": \"France\",\n    \"distance\": 700.0,\n    \"estimatedFlightTime\": \"PT10H\",\n    \"endedAt\": null,\n    \"delayStartedAt\": null,\n    \"createdAt\": \"2022-02-01T00:00:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/flights/",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"flights",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FlightController.changeFlightStatus()",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/flights/changeFlightStatus?flightId=1&flightStatus=ACTIVE",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"flights",
+								"changeFlightStatus"
+							],
+							"query": [
+								{
+									"key": "flightId",
+									"value": "1"
+								},
+								{
+									"key": "flightStatus",
+									"value": "ACTIVE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FlightController.getCompletedDelayed()",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/flights/getCompletedDelayed",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"flights",
+								"getCompletedDelayed"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

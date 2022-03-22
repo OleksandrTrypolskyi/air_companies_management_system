@@ -46,4 +46,10 @@ public class FlightController {
                 "With parameters flightId=" + flightId + " flightStatus=" + flightStatus);
         return flightService.changeFlightStatus(flightId, flightStatus);
     }
+
+    @GetMapping("/getCompletedDelayed")
+    public Set<Flight> getCompletedDelayed() {
+        log.info("GET request to FlightController.getCompletedDelayed() endpoint.");
+        return flightService.findCompletedFlightsWithDelay();
+    }
 }

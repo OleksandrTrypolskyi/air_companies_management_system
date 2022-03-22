@@ -11,10 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional
@@ -110,7 +112,25 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public Set<Flight> findCompletedFlightsWithDelay() {
-        return null;
+        final Optional<Set<Flight>> allByFLightStatus = flightRepository.findAllByFlightStatus(FlightStatus.COMPLETED);
+
+        if(allByFLightStatus.isPresent() && !allByFLightStatus.get().isEmpty()) {
+            final Set<Flight> flights = allByFLightStatus
+                    .get()
+                    .stream()
+                    .filter(flight -> flight.getEstimatedFlightTime()
+                            .compareTo(Duration.between(flight.getStartedAt(), flight.getEndedAt())) < 0)
+                    .collect(Collectors.toSet());
+            log.info("COMPLETED Flights with actual flight time greater than estimated flight time were " +
+                    "retrieved from DB." +
+                    " FlightServiceImpl.findCompletedFlightsWithDelay successful");
+            return flights;
+
+        } else {
+            log.error("Flight wit COMPLETED status was not found id DB " +
+                    "FlightServiceImpl.findCompletedFLightsWithDelay failed");
+            throw new FlightNotFoundException("Flight wit COMPLETED status was not found id DB");
+        }
     }
 
     private Flight getFlight(Long flightId, Optional<Flight> optionalFlight) {

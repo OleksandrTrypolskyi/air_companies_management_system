@@ -18,7 +18,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -37,6 +40,7 @@ class FlightControllerTest {
     public static final String FIND_ACTIVE_FLIGHTS_STARTED_MORE_THAN_DAY_AGO = "/findActiveFlightsStartedMoreThanDayAgo";
     public static final String GET_FLIGHTS = "/getFlights";
     public static final String CHANGE_FLIGHT_STATUS = "/changeFlightStatus";
+    public static final String GET_COMPLETED_DELAYED = "/getCompletedDelayed";
     private FlightController flightController;
     @Mock
     private FlightService flightService;
@@ -209,5 +213,42 @@ class FlightControllerTest {
                 .andReturn();
         assertThat(mvcResult.getResolvedException()).isInstanceOf(FlightStatusNotFoundException.class);
         verifyNoMoreInteractions(flightService);
+    }
+
+    @Test
+    void getCompletedDelayed() throws Exception {
+        when(flightService.findCompletedFlightsWithDelay()).thenReturn(initTestDataGetCompletedDelayed());
+        mockMvc.perform(get(API_V_1_FLIGHTS + GET_COMPLETED_DELAYED))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].flightStatus", is(COMPLETED)))
+                .andExpect(jsonPath("$[1].flightStatus", is(COMPLETED)));
+        verify(flightService, times(1)).findCompletedFlightsWithDelay();
+    }
+
+    @Test
+    void getCompletedDelayedThrowsFlightNotFoundExc() throws Exception {
+        when(flightService.findCompletedFlightsWithDelay())
+                .thenThrow(FlightNotFoundException.class);
+        final MvcResult mvcResult = mockMvc.perform(get(API_V_1_FLIGHTS + GET_COMPLETED_DELAYED))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+        assertThat(mvcResult.getResolvedException()).isInstanceOf(FlightNotFoundException.class);
+        verify(flightService, times(1)).findCompletedFlightsWithDelay();
+    }
+
+    private Set<Flight> initTestDataGetCompletedDelayed() {
+        Set<Flight> flights = new HashSet<>();
+        flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED)
+                .startedAt(LocalDateTime.of(2022, Month.MARCH, 2, 5, 0))
+                .endedAt(LocalDateTime.of(2022, Month.MARCH, 3, 5, 0))
+                .estimatedFlightTime(Duration.ofHours(20))
+                .build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED)
+                .startedAt(LocalDateTime.of(2022, Month.MARCH, 2, 5, 0))
+                .endedAt(LocalDateTime.of(2022, Month.MARCH, 2, 15, 0))
+                .estimatedFlightTime(Duration.ofHours(8))
+                .build());
+        return flights;
     }
 }

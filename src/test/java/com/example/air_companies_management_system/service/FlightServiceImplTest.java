@@ -14,7 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -86,7 +89,7 @@ class FlightServiceImplTest {
     @Test
     void findActiveFlightsStartedMoreThanDayAgo() {
         when(flightRepository
-                    .findAllByFlightStatusAndStartedAtLessThanEqual(any(FlightStatus.class), any(LocalDateTime.class)))
+                .findAllByFlightStatusAndStartedAtLessThanEqual(any(FlightStatus.class), any(LocalDateTime.class)))
                 .thenReturn(Optional.of(Set.of(flight)));
         final Set<Flight> result = flightService.findActiveFlightsStartedMoreThanDayAgo();
         verify(flightRepository, times(1))
@@ -137,5 +140,42 @@ class FlightServiceImplTest {
         when(flightRepository.findById(anyLong())).thenReturn(Optional.of(flight));
         assertThrows(FlightStatusNotFoundException.class, () -> flightService.changeFlightStatus(3L, "foo"));
         verifyNoMoreInteractions(flightRepository);
+    }
+
+    @Test
+    void findCompletedFlightsWithDelay() {
+        final Set<Flight> flights = initTestDataForFindCompletedFlightsWithDelay();
+        when(flightRepository.findAllByFlightStatus(any())).thenReturn(Optional.of(flights));
+
+        final Set<Flight> result = flightService.findCompletedFlightsWithDelay();
+
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    void findCompletedFlightsWithDelayThrowsFlightNotFoundExc() {
+        when(flightRepository.findAllByFlightStatus(any())).thenReturn(Optional.empty());
+        assertThrows(FlightNotFoundException.class, () -> flightService.findCompletedFlightsWithDelay());
+    }
+
+    private Set<Flight> initTestDataForFindCompletedFlightsWithDelay() {
+        Set<Flight> flights = new HashSet<>();
+        flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED)
+                .startedAt(LocalDateTime.of(2022, Month.MARCH, 2, 5, 0))
+                .endedAt(LocalDateTime.of(2022, Month.MARCH, 3, 5, 0))
+                .estimatedFlightTime(Duration.ofHours(20))
+                .build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED)
+                .startedAt(LocalDateTime.of(2022, Month.MARCH, 2, 5, 0))
+                .endedAt(LocalDateTime.of(2022, Month.MARCH, 2, 15, 0))
+                .estimatedFlightTime(Duration.ofHours(8))
+                .build());
+        flights.add(Flight.builder().flightStatus(FlightStatus.COMPLETED)
+                .startedAt(LocalDateTime.of(2022, Month.MARCH, 2, 5, 0))
+                .endedAt(LocalDateTime.of(2022, Month.MARCH, 2, 10, 0))
+                .estimatedFlightTime(Duration.ofHours(8))
+                .build());
+        return flights;
     }
 }

@@ -27,22 +27,22 @@ public class AirplaneServiceImpl implements AirplaneService {
     }
 
     @Override
-    public Airplane changeAirCompany(Long airPlaneId, Long airCompanyId) {
+    public Airplane changeAirCompany(Long airplaneid, Long airCompanyId) {
         final Optional<AirCompany> optionalAirCompany = airCompanyRepository.findById(airCompanyId);
         if (optionalAirCompany.isEmpty()) {
             return throwAirCompanyNotFoundException(airCompanyId);
         } else {
-            final Optional<Airplane> optionalAirPlane = airplaneRepository.findById(airPlaneId);
+            final Optional<Airplane> optionalAirPlane = airplaneRepository.findById(airplaneid);
             if (optionalAirPlane.isPresent()) {
-                log.info("Airplane with id: " + airPlaneId + " was retrieved from DB.");
+                log.info("Airplane with id: " + airplaneid + " was retrieved from DB.");
                 final Airplane airplane = optionalAirPlane.get();
-                log.info("Airplane, id=" + airPlaneId + ". Set Air Company id=" + airCompanyId);
+                log.info("Airplane, id=" + airplaneid + ". Set Air Company id=" + airCompanyId);
                 airplane.setAirCompany(optionalAirCompany.get());
                 return airplaneRepository.save(airplane);
             } else {
-                log.error("Airplane with id: " + airPlaneId + " does not exist in DB." +
+                log.error("Airplane with id: " + airplaneid + " does not exist in DB." +
                         "AirplaneServiceImpl.changeAirCompany() failed");
-                throw new AirplaneNotFoundException("Airplane with id:" + airCompanyId + " does not exists.");
+                throw new AirplaneNotFoundException("Airplane with id:" + airplaneid + " does not exists.");
             }
         }
 

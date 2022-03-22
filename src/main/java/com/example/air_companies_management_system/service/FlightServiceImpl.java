@@ -64,7 +64,7 @@ public class FlightServiceImpl implements FlightService {
                 .findAllByFlightStatusAndStartedAtLessThanEqual(FlightStatus.ACTIVE,
                         LocalDateTime.now().minusHours(24));
 
-        if(optional.isPresent()) {
+        if(optional.isPresent() && !optional.get().isEmpty()) {
             log.info("Flights with Active status and started more than 24 hours ago were retrieved from DB. " +
                     "FlightServiceImpl.findActiveFlightsStartedMoreThanDayAgo() successful.");
             return optional.get();
